@@ -2,6 +2,10 @@
 
 Track USD cost per call and session based on token counts and a price table.
 
+A tiny, dependency-free helper for accounting LLM/agent spend. Feed it the input
+and output token counts of each model call and it keeps running totals of cost
+and tokens, broken down per model and per (optional) session tag.
+
 ```python
 from agent_cost_tracker import AgentCostTracker
 
@@ -33,6 +37,8 @@ pip install agent-cost-tracker
 - `register(model, input_per_mtok, output_per_mtok)` — add or override prices
 - `record(model, input_tokens, output_tokens, session, metadata)` — log a call
 - `strict=True` raises `UnknownModelError` for unregistered models
+- Input validation: negative token counts (`record`) and negative prices
+  (`register`) raise `ValueError`
 - `total_cost()`, `total_input_tokens()`, `total_output_tokens()`, `total_tokens()`
 - `cost_by_model()`, `tokens_by_model()`, `calls_by_model()` — per-model breakdown
 - `cost_by_session()`, `tokens_by_session()`, `sessions()` — per-session breakdown
@@ -71,6 +77,37 @@ t.known_models()             -> list[str]
 
 t.records()                  -> list[dict]
 t.summary()                  -> dict
+```
+
+### Notes
+
+- All prices in the built-in table and in `register()` are **USD per
+  1,000,000 tokens** (per-MTok). The shipped numbers are illustrative; call
+  `register()` to set the exact current pricing for your provider.
+- Calls recorded without a `session` are grouped under the `"__default__"`
+  key in `cost_by_session()` / `tokens_by_session()`, but are excluded from
+  `sessions()`.
+- The package ships type hints and a `py.typed` marker (PEP 561), so type
+  checkers will pick up its annotations.
+
+## Development
+
+This project has **zero runtime and test dependencies**. The test suite uses
+the standard-library `unittest` runner:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+(from the repo root; an editable install with `pip install -e .` puts the
+package on the path, or set `PYTHONPATH=src`).
+
+Optional linting/formatting (requires the `dev` extra):
+
+```bash
+pip install -e ".[dev]"
+ruff check src tests
+ruff format --check src tests
 ```
 
 ## License

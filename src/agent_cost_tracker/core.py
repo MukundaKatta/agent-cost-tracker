@@ -121,7 +121,18 @@ class AgentCostTracker:
 
         Returns:
             ``self`` for chaining.
+
+        Raises:
+            ValueError: If either price is negative.
         """
+        if input_per_mtok < 0:
+            raise ValueError(
+                f"input_per_mtok must be >= 0, got {input_per_mtok}"
+            )
+        if output_per_mtok < 0:
+            raise ValueError(
+                f"output_per_mtok must be >= 0, got {output_per_mtok}"
+            )
         self._prices[model] = ModelPrice(
             model=model,
             input_per_mtok=input_per_mtok,

@@ -20,14 +20,25 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries",
+    "Typing :: Typed",
 ]
 
+[project.urls]
+Homepage = "https://github.com/MukundaKatta/agent-cost-tracker"
+Repository = "https://github.com/MukundaKatta/agent-cost-tracker"
+Issues = "https://github.com/MukundaKatta/agent-cost-tracker/issues"
+
 [project.optional-dependencies]
-dev = ["pytest>=7", "ruff>=0.4"]
+# The test suite uses only the standard-library ``unittest`` runner, so no
+# test dependency is required.  ``ruff`` is used for linting/formatting only.
+dev = ["ruff>=0.4"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/agent_cost_tracker"]
+# Ship the PEP 561 marker and all package data files (e.g. py.typed).
+artifacts = ["src/agent_cost_tracker/py.typed"]
 
 [tool.ruff]
 line-length = 88
