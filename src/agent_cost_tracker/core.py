@@ -64,6 +64,14 @@ class ModelPrice:
     input_per_mtok: float
     output_per_mtok: float
 
+    def __post_init__(self) -> None:
+        if self.input_per_mtok < 0:
+            raise ValueError(f"input_per_mtok must be >= 0, got {self.input_per_mtok}")
+        if self.output_per_mtok < 0:
+            raise ValueError(
+                f"output_per_mtok must be >= 0, got {self.output_per_mtok}"
+            )
+
     def cost(self, input_tokens: int, output_tokens: int) -> float:
         """Return USD cost for *input_tokens* and *output_tokens*."""
         return (
@@ -121,6 +129,9 @@ class AgentCostTracker:
 
         Returns:
             ``self`` for chaining.
+
+        Raises:
+            ValueError: If either price is negative.
         """
         self._prices[model] = ModelPrice(
             model=model,

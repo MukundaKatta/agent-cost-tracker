@@ -109,6 +109,30 @@ def test_builtin_prices_loaded():
     assert t.has_price("gpt-4o")
 
 
+def test_register_negative_input_price_raises():
+    t = AgentCostTracker()
+    with pytest.raises(ValueError):
+        t.register("m", input_per_mtok=-1.0, output_per_mtok=2.0)
+
+
+def test_register_negative_output_price_raises():
+    t = AgentCostTracker()
+    with pytest.raises(ValueError):
+        t.register("m", input_per_mtok=1.0, output_per_mtok=-2.0)
+
+
+def test_model_price_negative_raises():
+    with pytest.raises(ValueError):
+        ModelPrice("m", input_per_mtok=-1.0, output_per_mtok=1.0)
+
+
+def test_register_failure_does_not_add_price():
+    t = AgentCostTracker()
+    with pytest.raises(ValueError):
+        t.register("bad", input_per_mtok=-1.0, output_per_mtok=1.0)
+    assert t.has_price("bad") is False
+
+
 # ---------------------------------------------------------------------------
 # record
 # ---------------------------------------------------------------------------
@@ -272,6 +296,15 @@ def test_tokens_by_session():
     assert tbs["s1"]["total"] == 1500
 
 
+def test_tokens_by_session_default_key():
+    t = make_tracker()
+    t.record(_MODEL, input_tokens=1000, output_tokens=500)  # session=None
+    tbs = t.tokens_by_session()
+    assert tbs["__default__"]["input"] == 1000
+    assert tbs["__default__"]["output"] == 500
+    assert tbs["__default__"]["total"] == 1500
+
+
 # ---------------------------------------------------------------------------
 # records / reset
 # ---------------------------------------------------------------------------
@@ -345,3 +378,13 @@ def test_summary_values():
     s = t.summary()
     assert s["calls"] == 1
     assert s["total_cost_usd"] == pytest.approx(10.0)
+
+
+def test_summary_breakdowns():
+    t = make_tracker()
+    t.record(_MODEL, input_tokens=1_000_000, output_tokens=0, session="s1")
+    s = t.summary()
+    assert s["by_model"][_MODEL] == pytest.approx(2.0)
+    assert s["by_session"]["s1"] == pytest.approx(2.0)
+    assert s["total_input_tokens"] == 1_000_000
+    assert s["total_output_tokens"] == 0

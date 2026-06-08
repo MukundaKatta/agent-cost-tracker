@@ -30,8 +30,8 @@ pip install agent-cost-tracker
 ## Features
 
 - Built-in price table for Claude, GPT-4o, Gemini, and o-series models
-- `register(model, input_per_mtok, output_per_mtok)` — add or override prices
-- `record(model, input_tokens, output_tokens, session, metadata)` — log a call
+- `register(model, input_per_mtok, output_per_mtok)` — add or override prices (negative prices raise `ValueError`)
+- `record(model, input_tokens, output_tokens, session, metadata)` — log a call (negative token counts raise `ValueError`)
 - `strict=True` raises `UnknownModelError` for unregistered models
 - `total_cost()`, `total_input_tokens()`, `total_output_tokens()`, `total_tokens()`
 - `cost_by_model()`, `tokens_by_model()`, `calls_by_model()` — per-model breakdown
